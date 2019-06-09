@@ -18,9 +18,19 @@ namespace MarsRoverAppLib
         }
         public Rover(string name, IInputService input, IOutputService output)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("Rover ismi girilmedi!");
+            
             Name = name;
 
+            if (input == null)
+                throw new ArgumentNullException("İnput servis girilmedi!");
+           
             inputService = input;
+
+            if (output == null)
+                throw new ArgumentNullException("Output servis girilmedi!");
+
             outputService = output;
         }
 
@@ -35,21 +45,32 @@ namespace MarsRoverAppLib
 
         public void Run(MapCoordinate coordinate, string movement)
         {
+            if (coordinate == null)
+                throw new ArgumentNullException("Harita Koordinati belirtilmelidir!");
+
+            if (string.IsNullOrEmpty(movement))
+                throw new ArgumentNullException("Hareket Planı Girilmelidir!");
+
             foreach (var item in movement)
             {
                 if (item=='M')
                 {
-                    var stepCount = DirectionEngine.GetStepCount(item);
-                    if (DirectionEngine.GetAxis(item)=='Y')
+                    var stepCount = DirectionEngine.GetStepCount(roverStatus.Head);
+                    if (DirectionEngine.GetAxis(roverStatus.Head)=='Y')
                     {
                         roverStatus.YPoint = roverStatus.YPoint + stepCount;
                     }
-                    else if (DirectionEngine.GetAxis(item)=='X')
+                    else if (DirectionEngine.GetAxis(roverStatus.Head)=='X')
                     {
                         roverStatus.XPoint = roverStatus.XPoint + stepCount;
-                    } 
+                    }
                 }
-                roverStatus.Head = DirectionEngine.GetDirection(item.ToString());
+                else if (item == 'L' || item == 'R')
+                {
+                    roverStatus.Head = DirectionEngine.GetDirection(roverStatus.Head + item.ToString());
+                }
+
+                
             }
         }
 
